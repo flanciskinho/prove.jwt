@@ -1,5 +1,6 @@
 package org.example.web.rest;
 
+import org.example.repository.UserRepository;
 import org.example.security.jwt.JWTConfigurer;
 import org.example.security.jwt.TokenProvider;
 import org.example.web.rest.vm.LoginVM;
@@ -30,6 +31,9 @@ public class UserJWTController {
     @Inject
     private AuthenticationManager authenticationManager;
 
+    @Inject
+    private UserRepository userRepository;
+
     @RequestMapping(value = "/authenticate", method = RequestMethod.POST)
     @Timed
     public ResponseEntity<?> authorize(@Valid @RequestBody LoginVM loginVM, HttpServletResponse response) {
@@ -41,7 +45,7 @@ public class UserJWTController {
             Authentication authentication = this.authenticationManager.authenticate(authenticationToken);
             SecurityContextHolder.getContext().setAuthentication(authentication);
             boolean rememberMe = (loginVM.isRememberMe() == null) ? false : loginVM.isRememberMe();
-            String jwt = tokenProvider.createToken(authentication, rememberMe);
+            String jwt = tokenProvider.createToken(authentication, rememberMe, userRepository.findOneByLogin(loginVM.getUsername()).get().getId());
             response.addHeader(JWTConfigurer.AUTHORIZATION_HEADER, "Bearer " + jwt);
             return ResponseEntity.ok(new JWTToken(jwt));
         } catch (AuthenticationException exception) {

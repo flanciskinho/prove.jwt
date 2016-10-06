@@ -1,5 +1,6 @@
 package org.example.security;
 
+import org.example.config.JHipsterProperties;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -15,6 +16,20 @@ import java.util.Collection;
 public final class SecurityUtils {
 
     private SecurityUtils() {
+    }
+
+    public static Long getCurrentUserId() {
+        SecurityContext securityContext = SecurityContextHolder.getContext();
+        Authentication authentication = securityContext.getAuthentication();
+        Long userId = null;
+        if (authentication != null) {
+            if (authentication.getPrincipal() instanceof CustomUserSession) {
+                CustomUserSession springSecurityUser = (CustomUserSession) authentication.getPrincipal();
+                userId = springSecurityUser.getUserId();
+            }
+        }
+
+        return userId;
     }
 
     /**
