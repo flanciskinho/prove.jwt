@@ -1,0 +1,15 @@
+version: '2'
+services:
+    prove-app:
+        image: prove
+            - prove-mariadb:mariadb
+        environment:
+            - SPRING_PROFILES_ACTIVE=prod,swagger
+            - SPRING_DATASOURCE_URL=jdbc:mariadb://mariadb:3306/prove
+            - JHIPSTER_SLEEP=10 # gives time for the database to boot before the application
+        ports:
+            - 8080:8080
+    prove-mariadb:
+        extends:
+            file: mariadb.yml
+            service: prove-mariadb
